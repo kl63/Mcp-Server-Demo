@@ -1,6 +1,10 @@
 # GitHub Code Review MCP
 
-An MCP (Modular Capability Provider) service that enables AI-powered code reviews of GitHub repositories using Claude.
+An MCP (Model Context Protocol) service that enables AI-powered code reviews of GitHub repositories using Claude.
+
+## What is MCP?
+
+The Model Context Protocol (MCP) is an open protocol that enables seamless integration between LLM applications and external data sources and tools. Whether you're building an AI-powered IDE, enhancing a chat interface, or creating custom AI workflows, MCP provides a standardized way to connect LLMs with the context they need.
 
 ## Overview
 
