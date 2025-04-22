@@ -21,6 +21,12 @@ This service provides a set of tools that allow users to:
 - **Focused Reviews**: Specify areas to focus the code review on
 - **Improvement Suggestions**: Get specific suggestions for improving the codebase
 - **File-Level Analysis**: Get detailed feedback for specific files
+- **Security Scanning**: Identify security vulnerabilities and get remediation advice
+- **Dependency Analysis**: Analyze project dependencies for outdated packages and vulnerabilities
+- **Code Quality Metrics**: Get insights into code complexity, duplication, and maintainability
+- **Performance Analysis**: Identify performance bottlenecks and optimization opportunities
+- **Best Practices Comparison**: Compare code against industry best practices for your framework
+- **PR Description Generator**: Automatically generate comprehensive pull request descriptions
 
 ## Installation
 
@@ -90,6 +96,12 @@ The service exposes the following MCP tools:
 - `list_reviewed_repos()`: List all repositories that have been reviewed
 - `get_review_details(repo_key)`: Get detailed review results for a specific repository
 - `suggest_improvements(repo_key, file_path)`: Suggest specific improvements for a repository or file
+- `analyze_dependencies(repo_key)`: Analyze repository dependencies and provide recommendations
+- `scan_security_vulnerabilities(repo_key)`: Scan for security issues and vulnerabilities
+- `analyze_code_quality(repo_key)`: Get code quality metrics and suggestions
+- `analyze_performance(repo_key)`: Identify performance issues and optimization opportunities
+- `compare_with_best_practices(repo_key, framework)`: Compare against industry best practices
+- `generate_pull_request_description(repo_key, review_id)`: Generate comprehensive PR descriptions
 
 ## Note on Limitations
 

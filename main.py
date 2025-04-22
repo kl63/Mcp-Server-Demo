@@ -147,6 +147,281 @@ def suggest_improvements(repo_key: str, file_path: Optional[str] = None) -> Dict
         }
 
 
+@mcp.tool()
+def analyze_dependencies(repo_key: str) -> Dict[str, Any]:
+    """
+    Analyze dependencies in a repository
+    
+    Args:
+        repo_key: Repository key in the format "owner/repo"
+    
+    Returns:
+        Dependency analysis results including outdated packages, vulnerabilities, and recommendations
+    """
+    if repo_key not in repo_data:
+        return {"error": "Repository data not found."}
+    
+    repository_data = repo_data[repo_key]
+    
+    # For a real implementation, this would analyze package.json, requirements.txt, etc.
+    # For this demo, we're returning placeholder data
+    
+    return {
+        "repo": repo_key,
+        "dependencies": {
+            "direct": 15,
+            "indirect": 47,
+            "outdated": 3,
+            "vulnerable": 1,
+        },
+        "recommendations": [
+            "Update lodash from 4.17.15 to 4.17.21 to fix security vulnerabilities",
+            "Consider replacing moment.js with date-fns for better tree-shaking"
+        ]
+    }
+
+
+@mcp.tool()
+def scan_security_vulnerabilities(repo_key: str) -> Dict[str, Any]:
+    """
+    Scan a repository for security vulnerabilities
+    
+    Args:
+        repo_key: Repository key in the format "owner/repo"
+    
+    Returns:
+        Security scan results with identified vulnerabilities and remediation steps
+    """
+    if repo_key not in repo_data:
+        return {"error": "Repository data not found."}
+    
+    repository_data = repo_data[repo_key]
+    
+    # For a real implementation, this would integrate with security scanning tools
+    # For this demo, we're returning placeholder data
+    
+    return {
+        "repo": repo_key,
+        "scan_results": {
+            "critical": 0,
+            "high": 1,
+            "medium": 2,
+            "low": 3
+        },
+        "vulnerabilities": [
+            {
+                "severity": "high",
+                "description": "SQL Injection vulnerability in user input processing",
+                "location": "src/controllers/user.js:45",
+                "remediation": "Use parameterized queries or an ORM to handle user input"
+            },
+            {
+                "severity": "medium",
+                "description": "Insecure direct object reference",
+                "location": "src/api/orders.js:78",
+                "remediation": "Implement proper authorization checks before fetching resources"
+            }
+        ]
+    }
+
+
+@mcp.tool()
+def analyze_code_quality(repo_key: str) -> Dict[str, Any]:
+    """
+    Analyze code quality metrics for a repository
+    
+    Args:
+        repo_key: Repository key in the format "owner/repo"
+    
+    Returns:
+        Code quality metrics including complexity, duplication, and maintainability
+    """
+    if repo_key not in repo_data:
+        return {"error": "Repository data not found."}
+    
+    repository_data = repo_data[repo_key]
+    
+    # For a real implementation, this would integrate with code quality tools
+    # For this demo, we're returning placeholder data
+    
+    return {
+        "repo": repo_key,
+        "quality_metrics": {
+            "maintainability_index": 75,
+            "cyclomatic_complexity": {
+                "average": 12,
+                "worst_file": "src/utils/data-processor.js",
+                "worst_value": 45
+            },
+            "code_duplication": {
+                "percentage": 7.5,
+                "hotspots": [
+                    "src/components/forms",
+                    "src/utils/helpers.js"
+                ]
+            },
+            "test_coverage": {
+                "percentage": 68,
+                "uncovered_critical_paths": [
+                    "src/services/authentication.js",
+                    "src/controllers/payment.js"
+                ]
+            }
+        },
+        "recommendations": [
+            "Refactor src/utils/data-processor.js to reduce complexity",
+            "Extract duplicated code in form components into shared utilities",
+            "Increase test coverage for authentication and payment modules"
+        ]
+    }
+
+
+@mcp.tool()
+def analyze_performance(repo_key: str) -> Dict[str, Any]:
+    """
+    Analyze performance issues in a repository
+    
+    Args:
+        repo_key: Repository key in the format "owner/repo"
+    
+    Returns:
+        Performance analysis with potential bottlenecks and optimization suggestions
+    """
+    if repo_key not in repo_data:
+        return {"error": "Repository data not found."}
+    
+    repository_data = repo_data[repo_key]
+    
+    # For a real implementation, this would perform static analysis for performance issues
+    # For this demo, we're returning placeholder data
+    
+    return {
+        "repo": repo_key,
+        "performance_issues": [
+            {
+                "severity": "high",
+                "description": "Inefficient database query with N+1 problem",
+                "location": "src/services/products.js:67",
+                "impact": "Slow page load times when listing products with many relations",
+                "suggestion": "Use eager loading or GraphQL to fetch all needed data in one query"
+            },
+            {
+                "severity": "medium",
+                "description": "Render blocking JavaScript",
+                "location": "public/index.html:15-18",
+                "impact": "Delayed page interactivity and poor Lighthouse score",
+                "suggestion": "Use defer attribute or move script tags to end of body"
+            }
+        ],
+        "optimization_opportunities": [
+            "Implement code splitting to reduce initial bundle size",
+            "Add caching headers for static assets",
+            "Consider server-side rendering for initial page load"
+        ]
+    }
+
+
+@mcp.tool()
+def compare_with_best_practices(repo_key: str, framework: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Compare repository against industry best practices
+    
+    Args:
+        repo_key: Repository key in the format "owner/repo"
+        framework: Optional framework name to use specific best practices (e.g., "react", "django")
+    
+    Returns:
+        Comparison results and recommendations based on best practices
+    """
+    if repo_key not in repo_data:
+        return {"error": "Repository data not found."}
+    
+    repository_data = repo_data[repo_key]
+    
+    # Detect framework if not provided
+    if not framework:
+        # In a real implementation, detect from package.json, requirements.txt, etc.
+        framework = "react"  # Placeholder
+    
+    # For a real implementation, this would check against established best practices
+    # For this demo, we're returning placeholder data
+    
+    return {
+        "repo": repo_key,
+        "framework": framework,
+        "compliance_score": 72,
+        "areas": {
+            "project_structure": {
+                "score": 85,
+                "feedback": "Follows most React project structure conventions"
+            },
+            "state_management": {
+                "score": 60,
+                "feedback": "Inconsistent use of context API and Redux"
+            },
+            "component_design": {
+                "score": 78,
+                "feedback": "Good use of functional components, but some could be further decomposed"
+            },
+            "testing": {
+                "score": 65,
+                "feedback": "Unit tests present but integration tests missing"
+            }
+        },
+        "recommendations": [
+            "Standardize on a single state management approach",
+            "Break down larger components into smaller, reusable ones",
+            "Add integration tests for critical user flows"
+        ]
+    }
+
+
+@mcp.tool()
+def generate_pull_request_description(repo_key: str, review_id: str) -> Dict[str, Any]:
+    """
+    Generate a comprehensive pull request description based on code review results
+    
+    Args:
+        repo_key: Repository key in the format "owner/repo"
+        review_id: ID of the review to use for generating the PR description
+    
+    Returns:
+        Generated PR description with summary, changes, and testing notes
+    """
+    if repo_key not in repo_data:
+        return {"error": "Repository data not found."}
+    
+    # In a real implementation, this would generate a PR description based on the code changes
+    # For this demo, we're returning placeholder data
+    
+    return {
+        "repo": repo_key,
+        "pull_request_description": {
+            "title": "Refactor authentication service and fix security vulnerabilities",
+            "body": """
+## Changes
+
+This PR refactors the authentication service to improve security and maintainability:
+
+- Fix potential SQL injection vulnerability in login endpoint
+- Implement proper password hashing with bcrypt
+- Add rate limiting for failed login attempts
+- Refactor token generation for better testability
+
+## Testing
+
+- [x] Unit tests added for password hashing
+- [x] Integration tests for login flow
+- [x] Manual testing with various user roles
+
+## Reviewers
+
+Please pay special attention to the security changes in `src/services/auth.js`.
+            """
+        }
+    }
+
+
 # Helper functions
 def fetch_repo_info(owner: str, repo: str) -> Dict[str, Any]:
     """Fetch repository information from GitHub API"""
@@ -298,3 +573,80 @@ def generate_repo_suggestions(repo_data: Dict[str, Any]) -> Dict[str, Any]:
             "Optimize database queries in the user service"
         ]
     }
+
+
+def analyze_repository_dependencies(repo_files: Dict[str, Any]) -> Dict[str, Any]:
+    """Analyze repository dependencies from package.json, requirements.txt, etc."""
+    dependencies = {
+        "javascript": [],
+        "python": [],
+        "other": []
+    }
+    
+    for path, file_data in repo_files.items():
+        if path.endswith("package.json"):
+            # Parse JavaScript dependencies
+            try:
+                content = json.loads(file_data.get("content", "{}"))
+                deps = content.get("dependencies", {})
+                dev_deps = content.get("devDependencies", {})
+                
+                for name, version in deps.items():
+                    dependencies["javascript"].append({
+                        "name": name,
+                        "version": version,
+                        "dev": False
+                    })
+                
+                for name, version in dev_deps.items():
+                    dependencies["javascript"].append({
+                        "name": name,
+                        "version": version,
+                        "dev": True
+                    })
+            except json.JSONDecodeError:
+                pass
+                
+        elif path.endswith("requirements.txt"):
+            # Parse Python dependencies
+            content = file_data.get("content", "")
+            for line in content.split("\n"):
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    parts = line.split("==")
+                    name = parts[0].strip()
+                    version = parts[1].strip() if len(parts) > 1 else "latest"
+                    dependencies["python"].append({
+                        "name": name,
+                        "version": version
+                    })
+    
+    return dependencies
+
+
+def find_security_issues(repo_files: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Find potential security issues in code (placeholder implementation)"""
+    security_issues = []
+    
+    # In a real implementation, this would use security analysis tools
+    # For this demo, we're using very simple pattern matching
+    
+    security_patterns = {
+        "sql_injection": [
+            r"SELECT.*FROM.*WHERE.*\+",
+            r"SELECT.*FROM.*WHERE.*\$",
+            r"executeQuery\(.*\+",
+        ],
+        "xss": [
+            r"innerHTML.*=",
+            r"document\.write\(",
+            r"eval\(",
+        ],
+        "hardcoded_secrets": [
+            r"apiKey.*=.*['|\"]",
+            r"password.*=.*['|\"]",
+            r"secret.*=.*['|\"]",
+        ]
+    }
+    
+    return security_issues
