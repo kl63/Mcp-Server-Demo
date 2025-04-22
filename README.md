@@ -27,6 +27,7 @@ This service provides a set of tools that allow users to:
 - **Performance Analysis**: Identify performance bottlenecks and optimization opportunities
 - **Best Practices Comparison**: Compare code against industry best practices for your framework
 - **PR Description Generator**: Automatically generate comprehensive pull request descriptions
+- **Cascade Prompt Generation**: Create ready-to-use prompts for implementing improvements with Cascade
 
 ## Installation
 
@@ -53,6 +54,18 @@ This service provides a set of tools that allow users to:
    ```bash
    pip install -e .
    ```
+
+4. (Optional) Set up GitHub API token:
+   
+   To avoid GitHub API rate limiting, it's recommended to set up a GitHub API token:
+   
+   - Create a Personal Access Token on GitHub (Settings > Developer settings > Personal access tokens)
+   - Set the token as an environment variable:
+     ```bash
+     export GITHUB_API_TOKEN=your_github_token  # On Windows: set GITHUB_API_TOKEN=your_github_token
+     ```
+   
+   Without a token, you'll be limited to 60 requests per hour, which may not be enough for analyzing larger repositories.
 
 ## Usage
 
@@ -88,6 +101,16 @@ Once the MCP server is running, you can interact with it through Claude by using
    Show me all the repositories that have been reviewed
    ```
 
+5. Generate a Cascade prompt for implementing improvements:
+   ```
+   Generate a Cascade prompt for the improvements to https://github.com/username/repo-name
+   ```
+
+6. Get improved code for a specific file:
+   ```
+   Show me improved code for the file src/components/Button.js in https://github.com/username/repo-name
+   ```
+
 ## API Tools
 
 The service exposes the following MCP tools:
@@ -102,6 +125,8 @@ The service exposes the following MCP tools:
 - `analyze_performance(repo_key)`: Identify performance issues and optimization opportunities
 - `compare_with_best_practices(repo_key, framework)`: Compare against industry best practices
 - `generate_pull_request_description(repo_key, review_id)`: Generate comprehensive PR descriptions
+- `generate_cascade_prompt(repo_key)`: Create a prompt for implementing improvements with Cascade
+- `generate_improved_code(repo_key, file_path)`: Generate improved code for a specific file
 
 ## Note on Limitations
 

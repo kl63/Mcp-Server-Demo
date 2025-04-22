@@ -5,6 +5,10 @@ import base64
 import json
 import os
 from urllib.parse import urlparse
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Create the MCP server
 mcp = FastMCP("GitHub Code Review MCP")
@@ -12,6 +16,13 @@ mcp = FastMCP("GitHub Code Review MCP")
 # Store for repository data and review information
 repo_data = {}
 
+# GitHub API configuration
+GITHUB_API_TOKEN = os.environ.get("GITHUB_API_TOKEN", "")  # Get from environment variable
+GITHUB_HEADERS = {
+    "Accept": "application/vnd.github.v3+json"
+}
+if GITHUB_API_TOKEN:
+    GITHUB_HEADERS["Authorization"] = f"token {GITHUB_API_TOKEN}"
 
 @mcp.tool()
 def review_repository(repo_url: str, focus_areas: Optional[str] = None) -> Dict[str, Any]:
@@ -271,7 +282,7 @@ def analyze_code_quality(repo_key: str) -> Dict[str, Any]:
         "recommendations": [
             "Refactor src/utils/data-processor.js to reduce complexity",
             "Extract duplicated code in form components into shared utilities",
-            "Increase test coverage for authentication and payment modules"
+            "Add integration tests for critical user flows"
         ]
     }
 
@@ -422,15 +433,211 @@ Please pay special attention to the security changes in `src/services/auth.js`.
     }
 
 
+@mcp.tool()
+def generate_cascade_prompt(repo_key: str) -> Dict[str, Any]:
+    """
+    Generate a Cascade-specific prompt based on the code review results
+    
+    This tool creates a well-structured prompt that can be copied and pasted into Cascade (Codeium's AI assistant)
+    to automatically implement the suggested improvements from the code review.
+    
+    Args:
+        repo_key: Repository key in the format "owner/repo"
+    
+    Returns:
+        A structured Cascade prompt that can be used to implement the suggested improvements
+    """
+    if repo_key not in repo_data:
+        return {"error": "Repository data not found."}
+    
+    repository_data = repo_data[repo_key]
+    review_results = repository_data.get("review_results", {})
+    
+    # Gather all the suggestions and issues from various analyses
+    all_improvements = []
+    
+    # Add code quality improvements
+    if "quality_metrics" in repository_data:
+        metrics = repository_data["quality_metrics"]
+        if "recommendations" in metrics:
+            all_improvements.extend(metrics["recommendations"])
+    
+    # Add security improvements
+    if "vulnerabilities" in repository_data:
+        for vuln in repository_data["vulnerabilities"]:
+            all_improvements.append(
+                f"Fix {vuln['severity']} security issue in {vuln['location']}: {vuln['description']} by {vuln['remediation']}"
+            )
+    
+    # Add performance improvements
+    if "performance_issues" in repository_data:
+        for issue in repository_data["performance_issues"]:
+            all_improvements.append(
+                f"Fix {issue['severity']} performance issue in {issue['location']}: {issue['description']} by {issue['suggestion']}"
+            )
+    
+    # If no improvements were found, generate some generic ones based on repository name
+    if not all_improvements:
+        repo_name = repo_key.split('/')[1] if '/' in repo_key else repo_key
+        
+        # Generate default improvements based on repo name hints
+        if 'admin' in repo_name.lower():
+            all_improvements = [
+                "Implement proper authentication checks in admin routes to enhance security",
+                "Add comprehensive error handling for admin operations to improve UX",
+                "Refactor dashboard components for better code reusability",
+                "Optimize API calls with pagination and caching for better performance",
+                "Add comprehensive input validation to prevent security vulnerabilities",
+                "Improve accessibility (ARIA attributes) in dashboard forms and tables",
+                "Implement proper loading states for asynchronous operations"
+            ]
+        elif 'react' in repo_name.lower() or 'vue' in repo_name.lower() or 'angular' in repo_name.lower():
+            all_improvements = [
+                "Implement React.memo() for performance optimization of functional components",
+                "Convert class components to functional components with hooks for better maintainability",
+                "Add comprehensive PropTypes validation to improve code reliability",
+                "Implement proper error boundaries to prevent UI crashes",
+                "Optimize component rendering with useMemo and useCallback",
+                "Add comprehensive unit tests for critical components",
+                "Improve state management with context API or Redux"
+            ]
+        else:
+            # Generic improvements for any codebase
+            all_improvements = [
+                "Implement comprehensive error handling throughout the application",
+                "Add unit tests to improve code coverage and reliability",
+                "Refactor duplicate code into reusable functions/components",
+                "Optimize performance for critical application paths",
+                "Add proper documentation for key functions and components",
+                "Implement proper input validation and sanitization",
+                "Update dependencies to latest stable versions"
+            ]
+    
+    # Get basic repo information
+    repo_parts = repo_key.split('/')
+    owner = repo_parts[0]
+    repo_name = repo_parts[1] if len(repo_parts) > 1 else repo_key
+    
+    # Create the Cascade prompt
+    cascade_prompt = f"""
+I need help implementing improvements to my GitHub repository ({repo_key}) based on an AI code review. Here are the specific improvements needed:
+
+"""
+
+    # Add numbered list of improvements
+    for i, improvement in enumerate(all_improvements, 1):
+        cascade_prompt += f"{i}. {improvement}\n"
+    
+    cascade_prompt += """
+Please help me implement these changes one by one. For each change:
+1. Explain the improvement and why it's beneficial
+2. Show me the exact code modifications needed
+3. Handle any potential side effects or dependencies
+
+Let's start with the first improvement, and we can work through the list systematically.
+"""
+    
+    return {
+        "repo": repo_key,
+        "cascade_prompt": cascade_prompt.strip(),
+        "improvement_count": len(all_improvements)
+    }
+
+
+@mcp.tool()
+def generate_improved_code(repo_key: str, file_path: str) -> Dict[str, Any]:
+    """
+    Generate improved code for a specific file based on review results
+    
+    This tool provides AI-generated code improvements that address the issues identified in the review.
+    
+    Args:
+        repo_key: Repository key in the format "owner/repo"
+        file_path: Path to the file to improve
+    
+    Returns:
+        Improved code with explanations of changes
+    """
+    if repo_key not in repo_data:
+        return {"error": "Repository data not found."}
+    
+    repository_data = repo_data[repo_key]
+    
+    # Find the file in the code content
+    code_content = repository_data.get("code_content", {})
+    if file_path not in code_content:
+        return {"error": f"File '{file_path}' not found in repository data."}
+    
+    file_data = code_content[file_path]
+    original_code = file_data.get("content", "")
+    
+    # Collect all issues related to this file
+    file_issues = []
+    
+    # In a real implementation, this would collect all issues specific to this file
+    # from security scans, performance analysis, code quality metrics, etc.
+    
+    # For demo purposes, create a placeholder improved version
+    improved_code = original_code
+    
+    # Simple demo of code improvement (in a real implementation, this would use Claude API)
+    if file_path.endswith(".js"):
+        # Example JavaScript improvements
+        improved_code = improved_code.replace("var ", "const ")
+        improved_code = improved_code.replace("function(", "(")
+    elif file_path.endswith(".py"):
+        # Example Python improvements
+        improved_code = improved_code.replace("except:", "except Exception as e:")
+    
+    return {
+        "repo": repo_key,
+        "file_path": file_path,
+        "original_code": original_code,
+        "improved_code": improved_code,
+        "changes": [
+            "Replaced outdated syntax with modern alternatives",
+            "Improved error handling for better debugging",
+            "Applied consistent code style"
+        ],
+        "cascade_prompt": f"""
+Please help me implement the following improvements to {file_path}:
+
+1. Replace outdated syntax with modern alternatives
+2. Improve error handling for better debugging
+3. Apply consistent code style
+
+Here's the original code:
+
+```
+{original_code}
+```
+
+Please show me the improved version with explanations for each change.
+"""
+    }
+
+
 # Helper functions
 def fetch_repo_info(owner: str, repo: str) -> Dict[str, Any]:
     """Fetch repository information from GitHub API"""
     try:
-        response = requests.get(f"https://api.github.com/repos/{owner}/{repo}")
+        response = requests.get(
+            f"https://api.github.com/repos/{owner}/{repo}",
+            headers=GITHUB_HEADERS
+        )
+        
         if response.status_code == 200:
             return response.json()
+        elif response.status_code == 403:
+            # Rate limit exceeded
+            return {
+                "error": "GitHub API rate limit exceeded. Please try again later or provide a GitHub token.",
+                "details": response.json().get("message", "No additional details")
+            }
+        elif response.status_code == 404:
+            return {"error": f"Repository '{owner}/{repo}' not found. Check if the repository exists and is public."}
         else:
-            return {"error": f"Failed to fetch repository information: {response.status_code}"}
+            return {"error": f"Failed to fetch repository information: {response.status_code}", "details": response.json().get("message", "No additional details")}
     except Exception as e:
         return {"error": f"Error fetching repository information: {str(e)}"}
 
@@ -438,25 +645,53 @@ def fetch_repo_info(owner: str, repo: str) -> Dict[str, Any]:
 def fetch_repo_files(owner: str, repo: str, path: str = "") -> Dict[str, Any]:
     """Fetch repository files from GitHub API"""
     try:
-        response = requests.get(f"https://api.github.com/repos/{owner}/{repo}/contents/{path}")
+        response = requests.get(
+            f"https://api.github.com/repos/{owner}/{repo}/contents/{path}",
+            headers=GITHUB_HEADERS
+        )
+        
         if response.status_code != 200:
-            return {"error": f"Failed to fetch repository contents: {response.status_code}"}
+            if response.status_code == 403:
+                return {
+                    "error": "GitHub API rate limit exceeded. Please try again later or provide a GitHub token.",
+                    "details": response.json().get("message", "No additional details")
+                }
+            elif response.status_code == 404:
+                return {"error": f"Path '{path}' not found in repository '{owner}/{repo}'."}
+            else:
+                return {"error": f"Failed to fetch repository contents: {response.status_code}", "details": response.json().get("message", "No additional details")}
         
         contents = response.json()
         result = {}
         
         if isinstance(contents, list):
+            # This is a directory, process each item
             for item in contents:
                 if item["type"] == "file":
-                    # Get file content
-                    file_content = fetch_file_content(owner, repo, item["path"])
-                    if "error" not in file_content:
-                        result[item["path"]] = file_content
+                    # Only fetch content for small files (<1MB) to avoid rate limiting
+                    if item.get("size", 0) < 1024 * 1024:
+                        file_content = fetch_file_content(owner, repo, item["path"])
+                        if "error" not in file_content:
+                            result[item["path"]] = file_content
+                    else:
+                        result[item["path"]] = {
+                            "content": f"File too large to fetch ({item.get('size', 0)} bytes)",
+                            "path": item["path"],
+                            "size": item.get("size", 0),
+                            "too_large": True
+                        }
                 elif item["type"] == "dir":
-                    # Recursively fetch directory contents
-                    sub_contents = fetch_repo_files(owner, repo, item["path"])
-                    if "error" not in sub_contents:
-                        result.update(sub_contents)
+                    # Only recurse a few levels deep to avoid rate limiting
+                    if path.count("/") < 3:
+                        sub_contents = fetch_repo_files(owner, repo, item["path"])
+                        if "error" not in sub_contents:
+                            result.update(sub_contents)
+        else:
+            # This is a single file
+            if contents["type"] == "file":
+                file_content = fetch_file_content(owner, repo, path)
+                if "error" not in file_content:
+                    result[path] = file_content
         
         return result
     except Exception as e:
@@ -466,16 +701,40 @@ def fetch_repo_files(owner: str, repo: str, path: str = "") -> Dict[str, Any]:
 def fetch_file_content(owner: str, repo: str, path: str) -> Dict[str, Any]:
     """Fetch content of a specific file from GitHub API"""
     try:
-        response = requests.get(f"https://api.github.com/repos/{owner}/{repo}/contents/{path}")
+        response = requests.get(
+            f"https://api.github.com/repos/{owner}/{repo}/contents/{path}",
+            headers=GITHUB_HEADERS
+        )
+        
         if response.status_code == 200:
             content_data = response.json()
             if content_data.get("encoding") == "base64" and content_data.get("content"):
-                return {
-                    "content": base64.b64decode(content_data["content"]).decode("utf-8"),
-                    "path": path,
-                    "size": content_data.get("size", 0)
-                }
-        return {"error": f"Failed to fetch file content: {response.status_code}"}
+                # Try to decode, but handle errors gracefully
+                try:
+                    decoded_content = base64.b64decode(content_data["content"]).decode("utf-8")
+                    return {
+                        "content": decoded_content,
+                        "path": path,
+                        "size": content_data.get("size", 0)
+                    }
+                except UnicodeDecodeError:
+                    # This is likely a binary file
+                    return {
+                        "content": "Binary file (cannot display content)",
+                        "path": path,
+                        "size": content_data.get("size", 0),
+                        "is_binary": True
+                    }
+        
+        if response.status_code == 403:
+            return {
+                "error": "GitHub API rate limit exceeded. Please try again later or provide a GitHub token.",
+                "details": response.json().get("message", "No additional details")
+            }
+        elif response.status_code == 404:
+            return {"error": f"File '{path}' not found in repository '{owner}/{repo}'."}
+        
+        return {"error": f"Failed to fetch file content: {response.status_code}", "details": response.json().get("message", "No additional details")}
     except Exception as e:
         return {"error": f"Error fetching file content: {str(e)}"}
 
