@@ -1,9 +1,10 @@
 [project]
 name = "mcp-server-demo"
 version = "0.1.0"
-description = "Add your description here"
+description = "GitHub Code Review MCP for AI-powered code reviews using Claude"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "mcp[cli]>=1.6.0",
+    "requests>=2.31.0",
 ]
