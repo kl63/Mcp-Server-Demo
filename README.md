@@ -29,6 +29,37 @@ This service provides a set of tools that allow users to:
 - **PR Description Generator**: Automatically generate comprehensive pull request descriptions
 - **Cascade Prompt Generation**: Create ready-to-use prompts for implementing improvements with Cascade
 
+## MCP Tools
+
+This MCP server provides the following tools:
+
+### Repository Review Tools
+- **`review_repository(repo_url: str, focus_areas: Optional[str] = None)`**: Review a GitHub repository by providing the URL. You can optionally specify areas to focus on (e.g., "security, performance, best practices").
+
+- **`list_reviewed_repos()`**: List all repositories that have been reviewed, including review dates and focus areas.
+
+- **`get_review_details(repo_key: str)`**: Get detailed review results for a specific repository using its key in the format "owner/repo".
+
+### Improvement and Analysis Tools
+- **`suggest_improvements(repo_key: str, file_path: Optional[str] = None)`**: Get specific improvement suggestions for an entire repository or a specific file.
+
+- **`analyze_dependencies(repo_key: str)`**: Analyze repository dependencies to identify outdated packages, potential vulnerabilities, and provide recommendations.
+
+- **`scan_security_vulnerabilities(repo_key: str)`**: Scan a repository for security vulnerabilities and provide remediation steps.
+
+- **`analyze_code_quality(repo_key: str)`**: Get code quality metrics including complexity, duplication, and maintainability scores.
+
+- **`analyze_performance(repo_key: str)`**: Identify performance bottlenecks and get optimization suggestions.
+
+- **`compare_with_best_practices(repo_key: str, framework: Optional[str] = None)`**: Compare code against industry best practices, with optional framework-specific comparisons.
+
+### Code Generation Tools
+- **`generate_pull_request_description(repo_key: str, review_id: str)`**: Generate a comprehensive pull request description based on code review results.
+
+- **`generate_cascade_prompt(repo_key: str)`**: Create a Cascade-specific prompt that can be used to implement the suggested improvements.
+
+- **`generate_improved_code(repo_key: str, file_path: str)`**: Generate improved code for a specific file based on the review results.
+
 ## Installation
 
 ### Prerequisites
@@ -110,32 +141,6 @@ Once the MCP server is running, you can interact with it through Claude by using
    ```
    Show me improved code for the file src/components/Button.js in https://github.com/username/repo-name
    ```
-
-## API Tools
-
-The service exposes the following MCP tools:
-
-- `review_repository(repo_url, focus_areas)`: Review a GitHub repository
-- `list_reviewed_repos()`: List all repositories that have been reviewed
-- `get_review_details(repo_key)`: Get detailed review results for a specific repository
-- `suggest_improvements(repo_key, file_path)`: Suggest specific improvements for a repository or file
-- `analyze_dependencies(repo_key)`: Analyze repository dependencies and provide recommendations
-- `scan_security_vulnerabilities(repo_key)`: Scan for security issues and vulnerabilities
-- `analyze_code_quality(repo_key)`: Get code quality metrics and suggestions
-- `analyze_performance(repo_key)`: Identify performance issues and optimization opportunities
-- `compare_with_best_practices(repo_key, framework)`: Compare against industry best practices
-- `generate_pull_request_description(repo_key, review_id)`: Generate comprehensive PR descriptions
-- `generate_cascade_prompt(repo_key)`: Create a prompt for implementing improvements with Cascade
-- `generate_improved_code(repo_key, file_path)`: Generate improved code for a specific file
-
-## Note on Limitations
-
-This implementation includes placeholders for the actual Claude API integration. In a production environment, you would need to:
-
-1. Integrate with a proper Claude API endpoint
-2. Implement token handling and rate limiting
-3. Potentially add caching for repository data
-4. Add authentication for GitHub API requests
 
 ## License
 
